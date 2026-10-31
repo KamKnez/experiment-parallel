@@ -50,7 +50,8 @@ README.md            user-facing docs + methodology
 - **Scala join is non-blocking.** `Await` inside a pool thread would pin the worker,
   so results are combined with `flatMap`. This also differs from Java's fork/join on
   the same pool type, which is part of the comparison.
-- **Workers stop at physical cores** (`physical_cores()` in run.py, via `lscpu`).
+- **Workers stop at physical cores** (`physical_cores()` in run.py, via `lscpu`, or
+  PowerShell on Windows).
   `--max-workers` overrides this.
 - **run.py compares results across languages**, not just across worker counts.
 - **Repetition:** `--reps` (default 10) is the number of rounds. Each round runs every
@@ -109,13 +110,18 @@ On Ubuntu: `sudo apt install openjdk-21-jdk-headless`.
   on the user's multi-core machine.**
 - User's machine: Ubuntu 24.04 (zsh), OpenJDK 21 runtime. `javac` was missing,
   and the fix is to install `openjdk-21-jdk-headless`.
+- User also runs it natively on Windows 11 (8 cores / 16 threads) to contrast with a
+  colleague's Linux PC: Python 3.12 (`python`, not `python3`), Go 1.26, Rust 1.99 MSVC,
+  JDK 23, MinGW g++ 13.2. As of 2026-10-31, matplotlib and scala-cli were still missing there.
 
 ## Known limitations / possible next steps
 - **C++ fib scales poorly under libgomp:** ~4.3× at 8 workers (others ~7.5×, from the
   older run). Replacing `taskwait` with `taskgroup` only reached ~5.1×, so the cause
   isn't fully explained. `taskwait` stays because it matches the spawn/join design.
-- **Not Windows-ready:** run.py calls `go/bench` and `rust/target/release/bench`
-  without `.exe`.
+- **Windows support (added 2026-10-31, not yet run end-to-end):** on `win32`, binaries are
+  `bench.exe`, physical cores come from PowerShell `Win32_Processor`, and commands are
+  resolved with `shutil.which` (scala-cli may be a `.cmd`/`.bat`). C++ there is MinGW g++
+  (libgomp), and Rust uses the MSVC toolchain.
 - **Possible extra experiments:**
   - sweep the fib cutoff to measure per-task overhead;
   - vary `CHUNK` (it must stay identical in all 5 files);

@@ -34,6 +34,9 @@ python3 run.py --replot         # rebuild summary and plots from raw.csv, measur
 python3 run.py --help
 ```
 
+On Windows, use `python` instead of `python3`. The C++ build needs MinGW-w64 g++
+(its OpenMP is libgomp, as on Linux), and the Rust build needs the MSVC Build Tools.
+
 Results land in `results/`:
 - `summary.csv`: per language/algorithm/worker count: time statistics (median, mean, stdev,
   min, quartiles, max, cv), speedup, efficiency and serial fraction, with 95% intervals

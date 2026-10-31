@@ -23,6 +23,7 @@ import argparse
 import csv
 import os
 import random
+import shutil
 import statistics
 import subprocess
 import sys
@@ -54,17 +55,34 @@ TITLES = {"primes": "Data parallel: counting primes",
           "msort": "Memory heavy: merge sort"}
 INK, MUTED, GRID = "#2b2b2a", "#6b6a64", "#e4e3dd"
 
+WINDOWS = sys.platform == "win32"
+EXE = "bench.exe" if WINDOWS else "bench"
+
 LANGS = {
-    "rust": [str(ROOT / "rust/target/release/bench")],
-    "go": [str(ROOT / "go/bench")],
+    "rust": [str(ROOT / "rust/target/release" / EXE)],
+    "go": [str(ROOT / "go" / EXE)],
     "java": ["java", "-cp", str(ROOT / "java"), "Bench"],
-    "cpp": [str(ROOT / "cpp/bench")],
+    "cpp": [str(ROOT / "cpp" / EXE)],
     "scala": ["java", "-jar", str(ROOT / "scala/bench.jar")],
 }
 
 
+def resolve(cmd):
+    """Full path of the program, so Windows also finds .cmd/.bat wrappers (e.g. scala-cli)."""
+    return [shutil.which(cmd[0]) or cmd[0]] + cmd[1:]
+
+
 def physical_cores():
     """Physical core count; os.cpu_count() would also count SMT siblings."""
+    if WINDOWS:
+        try:
+            out = subprocess.run(
+                ["powershell", "-NoProfile", "-Command",
+                 "(Get-CimInstance Win32_Processor | Measure-Object NumberOfCores -Sum).Sum"],
+                capture_output=True, text=True, check=True).stdout
+            return int(out.strip())
+        except (OSError, subprocess.CalledProcessError, ValueError):
+            return os.cpu_count()
     try:
         out = subprocess.run(["lscpu", "-p=CORE,SOCKET"], capture_output=True,
                              text=True, check=True).stdout
@@ -75,17 +93,17 @@ def physical_cores():
 
 def build(selected):
     steps = {
-        "go": (["go", "build", "-o", "bench", "."], ROOT / "go"),
+        "go": (["go", "build", "-o", EXE, "."], ROOT / "go"),
         "rust": (["cargo", "build", "--release", "-q"], ROOT / "rust"),
         "java": (["javac", "Bench.java"], ROOT / "java"),
-        "cpp": (["g++", "-std=c++20", "-O3", "-fopenmp", "main.cpp", "-o", "bench"], ROOT / "cpp"),
+        "cpp": (["g++", "-std=c++20", "-O3", "-fopenmp", "main.cpp", "-o", EXE], ROOT / "cpp"),
         "scala": (["scala-cli", "--power", "package", "--assembly", "--preamble=false",
                    "--server=false", "-f", "-o", "bench.jar", "Bench.scala"], ROOT / "scala"),
     }
     for lang, (cmd, cwd) in steps.items():
         if lang in selected:
             print(f"building {lang} ...", flush=True)
-            subprocess.run(cmd, cwd=cwd, check=True)
+            subprocess.run(resolve(cmd), cwd=cwd, check=True)
 
 
 def worker_counts(max_w):
@@ -99,7 +117,7 @@ def worker_counts(max_w):
 
 def run(cmd, algo, workers, n, cutoff):
     """One fresh process doing one timed repetition."""
-    cmd = cmd + [algo, str(workers), str(n), str(cutoff), "1"]
+    cmd = resolve(cmd) + [algo, str(workers), str(n), str(cutoff), "1"]
     out = subprocess.run(cmd, capture_output=True, text=True, check=True).stdout
     value, secs = next(line.split()[1:] for line in out.splitlines() if line.startswith("RESULT"))
     return int(value), float(secs)

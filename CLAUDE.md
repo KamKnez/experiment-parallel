@@ -115,6 +115,10 @@ On Ubuntu: `sudo apt install openjdk-21-jdk-headless`.
   JDK 23, MinGW g++ 13.2, matplotlib, scala-cli (via Chocolatey; not on winget). The
   Windows `--quick` run worked on 2026-10-31.
 
+- Full runs finished on 2026-10-31: `results-linux/` (colleague's Ryzen 7 5800X desktop,
+  Ubuntu) and `results-windows/` (user's Ryzen 7 5800HS laptop, Windows 11). Same sizes,
+  10 rounds, workers 0/1/2/4/8. README "Test system" describes both machines.
+
 ## Known limitations / possible next steps
 - **C++ fib scales poorly under libgomp:** ~4.3× at 8 workers (others ~7.5×, from the
   older run). Replacing `taskwait` with `taskgroup` only reached ~5.1×, so the cause

@@ -83,6 +83,45 @@ Use `--primes-n`, `--fib-n`, `--fib-cutoff`, `--msort-n` and `--msort-cutoff` to
 
 Known answers for checking: π(10⁶) = 78,498, π(2·10⁷) = 1,270,607, fib(30) = 832,040, fib(42) = 267,914,296.
 
+## Test system
+
+The results in [`results-linux/`](results-linux/) were measured on this machine, with
+10 rounds at 0 (sequential), 1, 2, 4 and 8 workers:
+
+| | |
+|---|---|
+| CPU | AMD Ryzen 7 5800X |
+| Cores / threads | 8 physical / 16 logical (SMT on), 1 socket, 1 NUMA node |
+| Max clock | 4.85 GHz |
+| Cache | L1d 32 KiB per core, L2 512 KiB per core, L3 32 MiB shared |
+| Memory | 62 GiB usable |
+| OS | Ubuntu 24.04.5 LTS, Linux 7.0.0-38-generic |
+| CPU frequency | `amd-pstate-epp` driver, `powersave` governor, boost on |
+| C++ | g++ 13.3.0, `-std=c++20 -O3 -fopenmp` |
+| Rust | rustc 1.95.0, rayon 1.12.0 |
+| Go | go 1.25.4 |
+| Java | OpenJDK 21.0.12.1 |
+| Scala | Scala 3.3.6 on the same JVM, built with Scala CLI 1.18.0 |
+
+The results in [`results-windows/`](results-windows/) were measured natively on Windows
+(no WSL), with the same sizes and 10 rounds at 0 (sequential), 1, 2, 4 and 8 workers:
+
+| | |
+|---|---|
+| Machine | ASUS Zenbook UX425QA (laptop), plugged in |
+| CPU | AMD Ryzen 7 5800HS |
+| Cores / threads | 8 physical / 16 logical (SMT on), 1 socket, 1 NUMA node |
+| Clock | 3.2 GHz base, up to 4.4 GHz boost |
+| Cache | L1d 32 KiB per core, L2 512 KiB per core, L3 16 MiB shared |
+| Memory | 15.4 GiB usable |
+| OS | Windows 11 Home 25H2 (build 26200) |
+| CPU frequency | power plan Balanced with power mode "Best performance", boost on |
+| C++ | MinGW-w64 g++ 13.2.0 (MinGW-Builds, posix threads, libgomp), `-std=c++20 -O3 -fopenmp` |
+| Rust | rustc 1.99.0 (MSVC toolchain), rayon 1.12.0 |
+| Go | go 1.26.1 |
+| Java | Oracle JDK 23.0.1 (HotSpot) |
+| Scala | Scala 3.3.6 on the same JVM, built with Scala CLI 1.18.0 |
+
 ## Good experimental practice
 
 - Run on an otherwise idle machine, plugged in. Close the browser.
@@ -90,7 +129,8 @@ Known answers for checking: π(10⁶) = 78,498, π(2·10⁷) = 1,270,607, fib(30
   the curve will bend there. That is expected, not a bug.
 - Turbo boost makes single-core runs relatively faster than all-core runs, which
   lowers measured speedup. If you can, fix the CPU frequency (Linux:
-  `cpupower frequency-set -g performance`, or disable turbo) or at least report it.
+  `cpupower frequency-set -g performance`, or disable turbo; Windows: power mode
+  "Best performance") or at least report it.
 - Things worth varying afterwards:
   - the fib cutoff (`--fib-cutoff`): smaller means more, tinier tasks, so per-task overhead dominates;
   - the prime chunk size (`CHUNK` in each program).

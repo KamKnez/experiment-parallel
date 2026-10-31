@@ -112,7 +112,8 @@ On Ubuntu: `sudo apt install openjdk-21-jdk-headless`.
   and the fix is to install `openjdk-21-jdk-headless`.
 - User also runs it natively on Windows 11 (8 cores / 16 threads) to contrast with a
   colleague's Linux PC: Python 3.12 (`python`, not `python3`), Go 1.26, Rust 1.99 MSVC,
-  JDK 23, MinGW g++ 13.2. As of 2026-10-31, matplotlib and scala-cli were still missing there.
+  JDK 23, MinGW g++ 13.2, matplotlib, scala-cli (via Chocolatey; not on winget). The
+  Windows `--quick` run worked on 2026-10-31.
 
 ## Known limitations / possible next steps
 - **C++ fib scales poorly under libgomp:** ~4.3× at 8 workers (others ~7.5×, from the

@@ -80,6 +80,26 @@ Use `--primes-n`, `--fib-n`, `--fib-cutoff`, `--msort-n` and `--msort-cutoff` to
 
 Known answers for checking: π(10⁶) = 78,498, π(2·10⁷) = 1,270,607, fib(30) = 832,040, fib(42) = 267,914,296.
 
+## Test system
+
+The results in [`results-linux/`](results-linux/) were measured on this machine, with
+10 rounds at 0 (sequential), 1, 2, 4 and 8 workers:
+
+| | |
+|---|---|
+| CPU | AMD Ryzen 7 5800X |
+| Cores / threads | 8 physical / 16 logical (SMT on), 1 socket, 1 NUMA node |
+| Max clock | 4.85 GHz |
+| Cache | L1d 32 KiB per core, L2 512 KiB per core, L3 32 MiB shared |
+| Memory | 62 GiB usable |
+| OS | Ubuntu 24.04.5 LTS, Linux 7.0.0-38-generic |
+| CPU frequency | `amd-pstate-epp` driver, `powersave` governor, boost on |
+| C++ | g++ 13.3.0, `-std=c++20 -O3 -fopenmp` |
+| Rust | rustc 1.95.0, rayon 1.12.0 |
+| Go | go 1.25.4 |
+| Java | OpenJDK 21.0.12.1 |
+| Scala | Scala 3.3.6 on the same JVM, built with Scala CLI 1.18.0 |
+
 ## Good experimental practice
 
 - Run on an otherwise idle machine, plugged in. Close the browser.
